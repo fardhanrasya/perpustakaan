@@ -131,6 +131,21 @@ if (-not (Test-Path ".env")) {
     Write-Host " [V] File .env sudah ada." -ForegroundColor Green
 }
 
+# 3b. UPDATE .ENV FOR MYSQL
+# Laravel 11 default is SQLite, we force it to MySQL based on Config
+Write-Host " Memastikan konfigurasi database di .env adalah MySQL..." -ForegroundColor Gray
+$envContent = Get-Content ".env"
+if ($envContent -match "DB_CONNECTION=sqlite") {
+    $envContent = $envContent -replace "DB_CONNECTION=sqlite", "DB_CONNECTION=mysql"
+    $envContent = $envContent -replace "# DB_HOST=127.0.0.1", "DB_HOST=$DbHost"
+    $envContent = $envContent -replace "# DB_PORT=3306", "DB_PORT=3306"
+    $envContent = $envContent -replace "# DB_DATABASE=laravel", "DB_DATABASE=$DbName"
+    $envContent = $envContent -replace "# DB_USERNAME=root", "DB_USERNAME=$DbUser"
+    $envContent = $envContent -replace "# DB_PASSWORD=", "DB_PASSWORD=$DbPass"
+    $envContent | Set-Content ".env"
+    Write-Host " [V] .env berhasil diupdate ke MySQL ($DbName)." -ForegroundColor Green
+}
+
 # 4. COMPOSER INSTALL
 Write-Log "4. Menginstall Dependensi Backend (Composer)..." -Color Yellow -Bold
 if (-not (Test-Path "vendor/autoload.php")) {
