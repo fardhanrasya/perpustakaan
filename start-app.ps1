@@ -19,7 +19,7 @@
 $ErrorActionPreference = "Stop" # Hentikan script jika ada error fatal
 
 # --- KONFIGURASI ---
-$RepoUrl = "https://github.com/username/repo-perpustakaan.git" # Opsional: Update ini jika ingin fitur auto-clone berfungsi di folder baru
+$RepoUrl = "https://github.com/fardhanrasya/perpustakaan.git" # Opsional: Update ini jika ingin fitur auto-clone berfungsi di folder baru
 $DbName  = "perpustakaan"
 $DbHost  = "127.0.0.1"
 $DbUser  = "root"
