@@ -85,22 +85,36 @@ Write-Host " [V] Semua tools utama tersedia." -ForegroundColor Green
 # 2. CEK FOLDER & GIT
 Write-Log "2. Memeriksa Folder Proyek..." -Color Yellow -Bold
 if (Test-Path "composer.json") {
-    Write-Host " [V] File proyek ditemukan di direktori saat ini." -ForegroundColor Green
+    Write-Host " [V] Anda berada di dalam folder proyek." -ForegroundColor Green
 } else {
-    Write-Host " [!] File composer.json tidak ditemukan." -ForegroundColor Yellow
-    if ($RepoUrl -match "username") {
-        Write-Host " [!] URL Repository belum dikonfigurasi di script. " -ForegroundColor Yellow
-        $response = Read-Host "Apakah Anda ingin melanjutkan setup di folder ini tanpa clone ulang? (y/n)"
-        if ($response -ne "y") { exit }
+    Write-Host " [i] Tidak mendeteksi 'composer.json' di sini." -ForegroundColor Yellow
+    $ProjectDir = "perpustakaan"
+    
+    if (Test-Path $ProjectDir) {
+        Write-Host " [!] Folder '$ProjectDir' ditemukan. Masuk ke folder..." -ForegroundColor Cyan
+        Set-Location $ProjectDir
     } else {
-        Write-Host "Mencoba Clone dari $RepoUrl..." -ForegroundColor Cyan
+        Write-Host " [i] Folder '$ProjectDir' tidak ditemukan." -ForegroundColor Cyan
+        if ($RepoUrl -match "username") {
+            Write-Host " [X] Harap update variable `$RepoUrl di dalam script ini dulu!" -ForegroundColor Red
+            exit
+        }
+        Write-Host " [>] Memulai Clone dari $RepoUrl..." -ForegroundColor Cyan
         try {
-            git clone $RepoUrl .
+            git clone $RepoUrl $ProjectDir
+            Set-Location $ProjectDir
         } catch {
             Write-Host " [X] Gagal Clone: $($_.Exception.Message)" -ForegroundColor Red
             exit
         }
     }
+    
+    # Verifikasi ulang setelah masuk folder
+    if (-not (Test-Path "composer.json")) {
+        Write-Host " [X] Masih tidak menemukan composer.json di dalam $(Get-Location)." -ForegroundColor Red
+        exit
+    }
+    Write-Host " [V] Berhasil masuk ke folder proyek." -ForegroundColor Green
 }
 
 # 3. SETUP ENV FILE
