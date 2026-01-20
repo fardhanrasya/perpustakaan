@@ -131,10 +131,13 @@ if (-not (Test-Path ".env")) {
     Write-Host " [V] File .env sudah ada." -ForegroundColor Green
 }
 
-# 3b. UPDATE .ENV FOR MYSQL
-# Laravel 11 default is SQLite, we force it to MySQL based on Config
-Write-Host " Memastikan konfigurasi database di .env adalah MySQL..." -ForegroundColor Gray
+# 3b. UPDATE .ENV FOR MYSQL & SESSION
+# Laravel 11 default is SQLite + DB Sessions. We want MySQL + File Sessions (safest for starters)
+Write-Host " Memastikan konfigurasi database & session di .env..." -ForegroundColor Gray
 $envContent = Get-Content ".env"
+$updated = $false
+
+# Switch SQLite -> MySQL
 if ($envContent -match "DB_CONNECTION=sqlite") {
     $envContent = $envContent -replace "DB_CONNECTION=sqlite", "DB_CONNECTION=mysql"
     $envContent = $envContent -replace "# DB_HOST=127.0.0.1", "DB_HOST=$DbHost"
@@ -142,8 +145,20 @@ if ($envContent -match "DB_CONNECTION=sqlite") {
     $envContent = $envContent -replace "# DB_DATABASE=laravel", "DB_DATABASE=$DbName"
     $envContent = $envContent -replace "# DB_USERNAME=root", "DB_USERNAME=$DbUser"
     $envContent = $envContent -replace "# DB_PASSWORD=", "DB_PASSWORD=$DbPass"
+    $updated = $true
+}
+
+# Switch Session Database -> File (Avoids missing table 'sessions' error)
+if ($envContent -match "SESSION_DRIVER=database") {
+    $envContent = $envContent -replace "SESSION_DRIVER=database", "SESSION_DRIVER=file"
+    $updated = $true
+}
+
+if ($updated) {
     $envContent | Set-Content ".env"
-    Write-Host " [V] .env berhasil diupdate ke MySQL ($DbName)." -ForegroundColor Green
+    Write-Host " [V] .env berhasil diupdate (MySQL + File Session)." -ForegroundColor Green
+} else {
+    Write-Host " [V] Konfigurasi .env sudah sesuai." -ForegroundColor Gray
 }
 
 # 4. COMPOSER INSTALL
