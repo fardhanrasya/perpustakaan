@@ -133,8 +133,9 @@ if (-not (Test-Path ".env")) {
 
 # 4. COMPOSER INSTALL
 Write-Log "4. Menginstall Dependensi Backend (Composer)..." -Color Yellow -Bold
-if (-not (Test-Path "vendor")) {
-    Write-Host " Folder 'vendor' tidak ada. Memulai instalasi..." -ForegroundColor Gray
+if (-not (Test-Path "vendor/autoload.php")) {
+    Write-Host " Folder 'vendor' atau autoload.php belum lengkap. Memulai instalasi..." -ForegroundColor Gray
+    Write-Host " [i] Note: Tahap 'Generating optimized autoload files' mungkin agak lama di Windows." -ForegroundColor Cyan
     try {
         composer install --no-interaction
         Write-Host " [V] Composer install berhasil." -ForegroundColor Green
@@ -144,7 +145,7 @@ if (-not (Test-Path "vendor")) {
         exit
     }
 } else {
-    Write-Host " [V] Folder 'vendor' sudah ada. Melewati instalasi berat (jalankan 'composer install' manual jika ada error)." -ForegroundColor Gray
+    Write-Host " [V] Dependensi (vendor/autoload.php) sudah siap. Melewati instalasi berat." -ForegroundColor Gray
 }
 
 # 5. GENERATE KEY
